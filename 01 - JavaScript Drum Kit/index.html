@@ -57,15 +57,25 @@
 		<audio data-key="76" src="sounds/tink.wav"></audio>
 
 		<script>
-			window.addEventListener("keydown", function (e) {
+			function playSound(e) {
 				const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
+				const key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
 				if (!audio) return;
 				audio.currentTime = 0;
 				audio.play();
-				audio.addEventListener("ended", function () {
-					audio.currentTime = 0;
-				});
-			});
+				key.classList.add("playing");
+			}
+
+			function removeTransition(e) {
+				if (e.propertyName !== "transform") return;
+				this.classList.remove("playing");
+			}
+
+			const keys = document.querySelectorAll(".key");
+			keys.forEach((key) =>
+				key.addEventListener("transitionend", removeTransition)
+			);
+			window.addEventListener("keydown", playSound);
 		</script>
 	</body>
 </html> -->
@@ -131,13 +141,28 @@
 		<script>
 			window.addEventListener("keydown", function (e) {
 				const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
+				const key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
 				if (!audio) return;
+				// this creates a clone of the audio element so that it can be played multiple times to work around the audio element's single play limitation
+				// on browswers like safari.
 				const clone = audio.cloneNode();
 				clone.currentTime = 0;
 				clone.play();
+				// ended event listener is added to the clone so that the audio element can be played again after it has finished playing.
 				clone.addEventListener("ended", function () {
 					clone.currentTime = 0;
 				});
+				key.classList.add("playing");
+			});
+
+			function removeTransition(e) {
+				if (e.propertyName !== "transform") return;
+				this.classList.remove("playing");
+			}
+
+			const keys = document.querySelectorAll(".key");
+			keys.forEach((key) => {
+				key.addEventListener("transitionend", removeTransition);
 			});
 		</script>
 	</body>
